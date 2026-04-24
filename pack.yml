@@ -1,0 +1,216 @@
+name: backstop/go-standards
+version: "1.0.0"
+language: go
+archetype: enforcement
+description: "Official Go enforcement standards for backstop. Covers error handling, dependency injection, structured logging, security, and test hygiene."
+
+content:
+  ruleset:
+    version: "1.0.0"
+    rules:
+      # --- Core rules (correctness) ---
+      - id: go-core-no-global-mutable-state
+        standard: "No global mutable state — use dependency injection instead"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-001
+            text: "Global mutable state is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-003-dependency-injection.go
+              negative:
+                - fixtures/rules/invalid/go-003-global-mutable-state.go
+
+      - id: go-core-no-init-functions
+        standard: "No init() functions — explicit initialization only"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-002
+            text: "init() functions are rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-004-no-init.go
+              negative:
+                - fixtures/rules/invalid/go-004-init-function.go
+
+      - id: go-core-constructor-injection
+        standard: "Use constructor injection — no direct struct creation of dependencies"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-003
+            text: "Direct struct creation of dependencies is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-005-constructor-injection.go
+              negative:
+                - fixtures/rules/invalid/go-005-direct-struct-creation.go
+
+      - id: go-core-structured-logging
+        standard: "Use structured logging — no stdlib log package"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-004
+            text: "stdlib log usage is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-006-structured-logging.go
+              negative:
+                - fixtures/rules/invalid/go-006-stdlib-log.go
+
+      - id: go-core-no-ignored-errors
+        standard: "All errors must be checked — no ignored error returns"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-005
+            text: "Ignored error returns are rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-010-error-handled.go
+              negative:
+                - fixtures/rules/invalid/go-010-ignored-error.go
+
+      - id: go-core-error-wrapping
+        standard: "Errors must be wrapped with context using fmt.Errorf and %w"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-006
+            text: "Unwrapped error returns are rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-011-error-wrapped.go
+              negative:
+                - fixtures/rules/invalid/go-011-unwrapped-error.go
+
+      - id: go-core-no-naked-returns
+        standard: "No naked returns — all returns must be explicit"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-007
+            text: "Naked returns are rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-012-explicit-return.go
+              negative:
+                - fixtures/rules/invalid/go-012-naked-return.go
+
+      - id: go-core-no-panic-in-library
+        standard: "No panic in library code — return errors instead"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-008
+            text: "panic() in library code is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-013-error-return.go
+              negative:
+                - fixtures/rules/invalid/go-013-panic-in-library.go
+
+      - id: go-core-error-type-suffix
+        standard: "Error types must end with Error suffix"
+        rule_path: rules/core/go-core.yml
+        risk_class: correctness
+        layer: 2
+        claims:
+          - id: clm-009
+            text: "Error types without Error suffix are rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-021-error-type-suffix.go
+              negative:
+                - fixtures/rules/invalid/go-021-error-type-no-suffix.go
+
+      # --- Security rules ---
+      - id: go-security-no-hardcoded-credentials
+        standard: "No hardcoded credentials — use environment variables or secrets manager"
+        rule_path: rules/security/go-security.yml
+        risk_class: security
+        layer: 2
+        claims:
+          - id: clm-010
+            text: "Hardcoded passwords/keys are rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-060-env-credentials.go
+              negative:
+                - fixtures/rules/invalid/go-060-hardcoded-password.go
+                - path: fixtures/rules/invalid/go-060-obfuscated-credential.go
+                  bypass_attempt: true
+
+      - id: go-security-no-weak-hashing
+        standard: "No weak password hashing — use bcrypt or argon2"
+        rule_path: rules/security/go-security.yml
+        risk_class: security
+        layer: 2
+        claims:
+          - id: clm-011
+            text: "MD5/SHA1 password hashing is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-061-bcrypt-hash.go
+              negative:
+                - fixtures/rules/invalid/go-061-md5-password-hash.go
+                - path: fixtures/rules/invalid/go-061-sha256-password-hash.go
+                  bypass_attempt: true
+
+      - id: go-security-no-sql-concatenation
+        standard: "No SQL string concatenation — use parameterized queries"
+        rule_path: rules/security/go-security.yml
+        risk_class: security
+        layer: 2
+        claims:
+          - id: clm-012
+            text: "SQL concatenation is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-062-parameterized-query.go
+              negative:
+                - fixtures/rules/invalid/go-062-sql-concatenation.go
+                - path: fixtures/rules/invalid/go-062-fmt-sprintf-sql.go
+                  bypass_attempt: true
+
+      - id: go-security-no-sensitive-logs
+        standard: "No sensitive data in log output"
+        rule_path: rules/security/go-security.yml
+        risk_class: security
+        layer: 2
+        claims:
+          - id: clm-013
+            text: "Logging sensitive data is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-063-sanitized-log.go
+              negative:
+                - fixtures/rules/invalid/go-063-log-sensitive-data.go
+                - path: fixtures/rules/invalid/go-063-error-message-leak.go
+                  bypass_attempt: true
+
+      # --- Test rules ---
+      - id: go-test-no-time-sleep
+        standard: "No time.Sleep in tests — use test clock or polling"
+        rule_path: rules/test/go-test.yml
+        risk_class: style
+        layer: 2
+        claims:
+          - id: clm-014
+            text: "time.Sleep in test files is rejected"
+            fixtures:
+              positive:
+                - fixtures/rules/valid/go-032-no-sleep-in-test.go
+              negative:
+                - fixtures/rules/invalid/go-032-time-sleep-in-test_test.go
