@@ -13,7 +13,7 @@ content:
         standard: "No global mutable state — use dependency injection instead"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-001
             text: "Global mutable state is rejected"
@@ -27,7 +27,7 @@ content:
         standard: "No init() functions — explicit initialization only"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-002
             text: "init() functions are rejected"
@@ -41,7 +41,7 @@ content:
         standard: "Use constructor injection — no direct struct creation of dependencies"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-003
             text: "Direct struct creation of dependencies is rejected"
@@ -55,7 +55,7 @@ content:
         standard: "Use structured logging — no stdlib log package"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-004
             text: "stdlib log usage is rejected"
@@ -69,7 +69,7 @@ content:
         standard: "All errors must be checked — no ignored error returns"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-005
             text: "Ignored error returns are rejected"
@@ -83,7 +83,7 @@ content:
         standard: "Errors must be wrapped with context using fmt.Errorf and %w"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-006
             text: "Unwrapped error returns are rejected"
@@ -97,7 +97,7 @@ content:
         standard: "No naked returns — all returns must be explicit"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-007
             text: "Naked returns are rejected"
@@ -111,7 +111,7 @@ content:
         standard: "No panic in library code — return errors instead"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-008
             text: "panic() in library code is rejected"
@@ -125,7 +125,7 @@ content:
         standard: "Error types must end with Error suffix"
         rule_path: rules/core/go-core.yml
         risk_class: correctness
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-009
             text: "Error types without Error suffix are rejected"
@@ -140,7 +140,7 @@ content:
         standard: "No hardcoded credentials — use environment variables or secrets manager"
         rule_path: rules/security/go-security.yml
         risk_class: security
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-010
             text: "Hardcoded passwords/keys are rejected"
@@ -156,7 +156,7 @@ content:
         standard: "No weak password hashing — use bcrypt or argon2"
         rule_path: rules/security/go-security.yml
         risk_class: security
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-011
             text: "MD5/SHA1 password hashing is rejected"
@@ -172,7 +172,7 @@ content:
         standard: "No SQL string concatenation — use parameterized queries"
         rule_path: rules/security/go-security.yml
         risk_class: security
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-012
             text: "SQL concatenation is rejected"
@@ -188,7 +188,7 @@ content:
         standard: "No sensitive data in log output"
         rule_path: rules/security/go-security.yml
         risk_class: security
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-013
             text: "Logging sensitive data is rejected"
@@ -205,7 +205,7 @@ content:
         standard: "No time.Sleep in tests — use test clock or polling"
         rule_path: rules/test/go-test.yml
         risk_class: style
-        layer: 2
+        engine: semgrep
         claims:
           - id: clm-014
             text: "time.Sleep in test files is rejected"
