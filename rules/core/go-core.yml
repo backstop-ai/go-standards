@@ -1,7 +1,18 @@
 rules:
   - id: go.core.no-global-mutable-state
-    pattern: |
-      var $X = ...
+    patterns:
+      - pattern: |
+          var $X = ...
+      # Semgrep's Go matcher normalizes const declarations into the same shape
+      # as `var $X = ...`, so a bare var-pattern false-fires on immutable const
+      # decls (e.g. `Foo SomeType = iota`). const is immutable by language
+      # definition and is never the mutable-global hazard this rule targets;
+      # exclude both untyped and typed const forms. (Proven purely subtractive:
+      # all real `var` globals still flag; only const false-positives drop.)
+      - pattern-not: |
+          const $X = $Y
+      - pattern-not: |
+          const $X $T = $Y
     message: "Package-level mutable variable detected. Use dependency injection instead."
     severity: ERROR
     languages: [go]
