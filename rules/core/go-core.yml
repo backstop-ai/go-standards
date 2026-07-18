@@ -13,6 +13,15 @@ rules:
           const $X = $Y
       - pattern-not: |
           const $X $T = $Y
+      # regexp.MustCompile-initialized package vars are immutable-by-construction:
+      # compiled once at init, never reassigned, and *regexp.Regexp is documented as
+      # safe for concurrent use — NOT the mutable-global hazard this rule targets.
+      # Complying (recompile per-call, or thread the regexp through via DI) is strictly
+      # worse code. Purely subtractive: real mutable `var` globals still flag.
+      - pattern-not: |
+          var $X = regexp.MustCompile(...)
+      - pattern-not: |
+          var $X = regexp.MustCompilePOSIX(...)
     message: "Package-level mutable variable detected. Use dependency injection instead."
     severity: ERROR
     languages: [go]

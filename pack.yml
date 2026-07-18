@@ -1,5 +1,5 @@
 name: backstop/go-standards
-version: "1.0.0"
+version: "1.1.0"
 language: go
 archetype: enforcement
 description: "Official Go enforcement standards for backstop. Covers error handling, dependency injection, structured logging, security, and test hygiene."
