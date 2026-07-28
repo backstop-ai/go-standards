@@ -87,6 +87,27 @@ rules:
         compliance_tier: standard
         rationale: "Structured logs are machine-parseable and support consistent observability."
 
+  # The pattern matches a DISCARDED SECOND VALUE, not a discarded ERROR — semgrep
+  # cannot see the type behind `_`. In non-test code that approximation holds well
+  # enough, because a `$VAL, _ :=` there is overwhelmingly an error being dropped.
+  # In TEST code it does not: test helpers routinely return (value, value) pairs
+  # whose second element is not an error at all, so the rule fires on code with no
+  # error to handle, and the only ways to satisfy it are a suppression comment or a
+  # throwaway variable — scars written for a rule that misfired.
+  #
+  # Measured on backstop-core 2026-07-27 (ISSUE-087 TASK-016): 97 rows across 21
+  # test files, 61 distinct source lines. Non-error discards in that set include
+  # `code, _ := runArtifactNewTest(...)` — signature (int, string), no error in it
+  # — and `result, _ := g.Run(ctx)`, where gate.Run returns (GateResult, int) and
+  # the discarded value is an exit code.
+  #
+  # Excluding test files is PURELY SUBTRACTIVE: this rule's own fixture pair
+  # (go-010-error-handled.go / go-010-ignored-error.go) is plain .go and behaves
+  # identically, every real non-test ignored error still flags, and
+  # go-010-ignored-error-in-test_test.go pins the new exclusion so it cannot
+  # silently regress. Genuine unchecked errors in tests remain covered by the
+  # go-toolchain pack's errcheck pass, which knows the actual types. Mirrors the
+  # paths-scoping convention already used by go.test.no-time-sleep-in-tests.
   - id: go.core.no-ignored-errors
     pattern-either:
       - pattern: |
@@ -96,6 +117,9 @@ rules:
     message: "Ignored error detected. Handle returned errors explicitly."
     severity: ERROR
     languages: [go]
+    paths:
+      exclude:
+        - "*_test.go"
     metadata:
       backstop:
         category: error-handling

@@ -1,5 +1,5 @@
 name: backstop-ai/go-standards
-version: "1.2.0"
+version: "1.2.1"
 language: go
 archetype: enforcement
 description: "Official Go enforcement standards for backstop. Covers error handling, dependency injection, structured logging, security, and test hygiene."
@@ -76,6 +76,7 @@ content:
             fixtures:
               positive:
                 - fixtures/rules/valid/go-010-error-handled.go
+                - fixtures/rules/valid/go-010-ignored-error-in-test_test.go
               negative:
                 - fixtures/rules/invalid/go-010-ignored-error.go
 
