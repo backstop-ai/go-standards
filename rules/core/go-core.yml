@@ -22,9 +22,45 @@ rules:
           var $X = regexp.MustCompile(...)
       - pattern-not: |
           var $X = regexp.MustCompilePOSIX(...)
+      # Package scope only. The bare var-pattern also matches `var` inside a
+      # function body (including methods and closures); a local variable is not
+      # package-level state. Purely subtractive: every package-level match stands.
+      - pattern-not-inside: |
+          func $F(...) { ... }
+      - pattern-not-inside: |
+          func $F(...) $R { ... }
+      - pattern-not-inside: |
+          func ($RECV $T) $F(...) { ... }
+      - pattern-not-inside: |
+          func ($RECV $T) $F(...) $R { ... }
+      - pattern-not-inside: |
+          func(...) { ... }
+      - pattern-not-inside: |
+          func(...) $R { ... }
+      # `var _ I = (*T)(nil)` is a compile-time interface assertion: the blank
+      # identifier stores nothing that any code can read or write.
+      - pattern-not: |
+          var _ $T = $V
+      - pattern-not: |
+          var _ = $V
+      # embed.FS is read-only by type: a typed re-export of an embedded
+      # filesystem (`var SchemaFS embed.FS = root.SchemaFS`) exposes no mutable
+      # state, like the regexp.MustCompile case above.
+      - pattern-not: |
+          var $X embed.FS = $V
     message: "Package-level mutable variable detected. Use dependency injection instead."
     severity: ERROR
     languages: [go]
+    # Test files are excluded, as for go.core.no-ignored-errors (1.2.1). The
+    # rule's hazard is runtime state reached without dependency injection. A test
+    # package's top-level vars are fixtures (a fixed clock, an expected-hash
+    # table), and the only way to satisfy the rule there is a constructor
+    # function per fixture. Measured on backstop-core 2026-11-01: 6 package-level
+    # test-file matches, none ever written. go-003-fixture-in-test_test.go pins
+    # the exclusion.
+    paths:
+      exclude:
+        - "*_test.go"
     metadata:
       backstop:
         category: structure

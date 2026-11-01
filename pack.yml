@@ -1,5 +1,5 @@
 name: backstop-ai/go-standards
-version: "1.2.1"
+version: "1.2.2"
 language: go
 archetype: enforcement
 description: "Official Go enforcement standards for backstop. Covers error handling, dependency injection, structured logging, security, and test hygiene."
@@ -20,8 +20,12 @@ content:
             fixtures:
               positive:
                 - fixtures/rules/valid/go-003-dependency-injection.go
+                - fixtures/rules/valid/go-003-regexp-mustcompile.go
+                - fixtures/rules/valid/go-003-local-and-readonly.go
+                - fixtures/rules/valid/go-003-fixture-in-test_test.go
               negative:
                 - fixtures/rules/invalid/go-003-global-mutable-state.go
+                - fixtures/rules/invalid/go-003-global-map.go
 
       - id: go-core-no-init-functions
         standard: "No init() functions — explicit initialization only"
